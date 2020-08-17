@@ -1,0 +1,30 @@
+<!-- This is the area for the templating of all of the furnature -->
+    {{!-- /*{
+        id:num,
+        createdBy:username,
+        img:imgURL,
+        make:make,
+        model:model,
+        year:1950-2050,
+        description:string,
+        price:$,
+        material:type||undefined
+    }*/ --}}
+{{#each furnitureItem}}
+  <div class="col-md-4">
+    <div class="card text-white bg-primary">
+      <div class="card-body">
+        <blockquote class="card-blockquote">
+          <img src="{{imageUrl}}" />
+                <p>{{description}}</p>
+                <footer>Made by {{maker}} in,
+                  <cite title="{{year}}">{{year}}</cite>
+                </footer>
+                <div class="pull-right">
+                  <a href="#/furniture/details/{{id}}" class="btn btn-info">Details</a>
+                </div>
+              </blockquote>
+            </div>
+          </div>
+        </div>
+{{/each}}

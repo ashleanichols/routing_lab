@@ -1,5 +1,4 @@
-let loggedin = false;
-let user= "";
+
 const app = Sammy("#container",function(){
     this.use('Handlebars', 'hbs');
     /**
@@ -12,11 +11,36 @@ const app = Sammy("#container",function(){
      *  description: must be more than 10 symbols,
      *  price: must be a positive number,
      *  imageURL: is required
-     *  Material: no longer than 20 character - is optional
+     *  material: no longer than 20 character - is optional
      * }
+     * {
+        id:1,
+        createdBy:"temp",
+        img:"imgURL",
+        make:" the make",
+        model:"a chair, probablt",
+        year:2020,
+        Description:"this is an item",
+        price:22,        
+       } 
      */
-    let allFurnature = []; //array of furniture objects
     
+    let allFurnature = [
+        {
+            id:1,
+            maker:"user",
+            img:"imgURL",
+            make:" the make",
+            model:"a chair, probablt",
+            year:2020,
+            description:"this is an item",
+            price:22,  
+            material:"(Not Avaiable)"      
+           }
+    ]; //array of furniture objects
+    let currentID= allFurnature.length+1;
+    let loggedIn = false;
+    let user= "";
     /**
      * (POST) /furniture/create -- create route and post down
      * All Furniture (GET): /furniture/all -- Home route
@@ -26,43 +50,70 @@ const app = Sammy("#container",function(){
     */
     class RouteController{
         handleHome(context){
-            context.loggedin  =loggedin;
-            context.loadPartials({ })
-                .then(() => {
-                    context.allFurnature = allFurnature;
-                    context.partial('./views/home.hbs');
-                });
+            context.loggedIn  =loggedIn;
+            context.load("./views/header.hbs")
+            .then((partial) => {
+                //console.log(partial);
+                context.partials={
+                    header:partial
+                };
+                context.hasFurniture = (allFurnature.length>0 ? true:false);
+                context.furnitureItem = allFurnature;
+                context.partial('./views/home.hbs');
+            });
         }
         handleDetails(context){
             const id = parseInt(context.params.id);
-            //const details = allFurnature.find(furniture => furniture.id === id);
-            context.loggedin  =loggedin;
-            context.loadPartials({ })
-                .then(() => {
-                    //context.details = details;
-                    context.partial('./views/details.hbs');
-                });
+            const details = allFurnature.find(furniture => furniture.id === id);
+           // console.log(details);
+            context.loggedIn  =loggedIn;
+            context.load("./views/header.hbs")
+            .then((partial) => {
+                //console.log(partial);
+                context.partials={
+                    header:partial
+                };
+                context.details = details;
+                context.partial('./views/details.hbs');
+            });
         }
         handleProfile(context){
-            context.loggedin  =loggedin;
-            context.loadPartials({ })
-                .then(() => {
-                    context.myFurnature = allFurnature;
+            context.loggedIn  =loggedIn;
+            //console.log(user)
+            const userFurniture = allFurnature.filter(furniture => furniture.maker == user);
+            //console.log(userFurniture);
+            context.hasFurniture = (userFurniture.length>0 ? true:false);
+            context.load("./views/header.hbs")
+            .then((partial) => {
+                //console.log(partial);
+                context.partials={
+                    header:partial
+                };
+                    
+                    context.myFurnature = userFurniture;
                     context.partial('./views/profile.hbs');
                 });
         }
         handleCreate(context){
-            context.loggedin  =loggedin;
-            context.loadPartials({ })
-            .then(() => {
+            context.loggedIn  =loggedIn;
+            context.load("./views/header.hbs")
+            .then((partial) => {
+                //console.log(partial);
+                context.partials={
+                    header:partial
+                };
                 // context.myFurnature = allFurnature;
                 context.partial('./views/create.hbs');
             });
         }
         handleLogin(context){
-            context.loggedin  =loggedin;
-            context.loadPartials({ })
-            .then(() => {
+            context.loggedIn  =loggedIn;
+            context.load("./views/header.hbs")
+            .then((partial) => {
+                //console.log(partial);
+                context.partials={
+                    header:partial
+                };
                 // context.myFurnature = allFurnature;
                 context.partial('./views/login.hbs');
             });
@@ -77,20 +128,38 @@ const app = Sammy("#container",function(){
         addItem({ params }){
             console.log("Item Added!");
             //TODO: add data to the array
+            //https://image.shutterstock.com/image-photo/light-wooden-tabletop-table-on-600w-514179574.jpg  
+            const {make, model,year, description, price, img, material } = params;
+            //console.log(material)
+            let furniture = {
+                id: currentID,
+                maker:user,
+                make,
+                model,
+                year, 
+                description, 
+                price, 
+                img, 
+                material:(material!=""? material:"(Not Avaiable)")
+            };
+            currentID++;
+            allFurnature.push(furniture);
+
+            this.redirect("#/furniture/mine");
             //TODO Later:Add data to db
         }
         login({ params }){
             console.log("logged in");
             const { email, password } = params;
              
- 
-            loggedin = true;
+            user= email;
+            loggedIn = true;
             this.redirect("#/furniture/mine");
         }
         logout(context){
             console.log("logged out");
-            loggedin = false;
-            let user= "";
+            loggedIn = false;
+            user= "";
             this.redirect("#/");
         }
     }
@@ -108,6 +177,7 @@ const app = Sammy("#container",function(){
     
     this.get("#/furniture/create", route.handleCreate);
     this.post("#/furniture/create", data.addItem);
+    
     this.get('#/login', route.handleLogin);
     this.post('#/login', data.login);
     this.get('#/logout', data.logout);

@@ -1,3 +1,4 @@
+{{>header}}
 <div class="container">
     <div class="row space-top">
       <div class="col-md-12">
@@ -6,22 +7,32 @@
       </div>
     </div>
     <div class="row space-top">
-      <div class="col-md-4">
-        <div class="card text-white bg-primary">
-          <div class="card-body">
-            <blockquote class="card-blockquote">
-              <img src="imageUrl" />
-              <p>Description Here</p>
-              <footer>Someone famous in
-                <cite title="Source Title">Source Title</cite>
-              </footer>
-              <div class="pull-right">
-                <a href="#/furniture/details/1" class="btn btn-info">Details</a>
-                <a href="#/furniture/delete/1" class="btn btn-danger">Delete Item</a>
-              </div>
-            </blockquote>
+    {{#if hasFurniture}}
+      {{#each myFurnature}}
+        <div class="col-md-4">
+          <div class="card text-white bg-primary">
+            <div class="card-body">
+              <blockquote class="card-blockquote">
+                <img src="{{img}}" />
+                <p>{{description}}</p>
+                <footer>Made by {{maker}} in,
+                  <cite title="{{year}}">{{year}}</cite>
+                </footer>
+                <div class="pull-right">
+                  <a href="#/furniture/details/{{id}}" class="btn btn-info">Details</a>
+                </div>
+              </blockquote>
+            </div>
           </div>
         </div>
-      </div>
+      {{/each}}
+      {{else}}
+       <div class="col-md-4">
+         <h2> No Furniture in your Account</h2>
+         <p>There is no furniture in currenty in your account</p>
+         <p>select the Add Furniture button on the top bar to add some now.</p>
+
+       </div>
+    {{/if}}
     </div>
   </div>

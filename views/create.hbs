@@ -1,3 +1,4 @@
+{{>header}}
 <div class="container">
     <div class="row space-top">
       <div class="col-md-12">
@@ -10,49 +11,52 @@
         <div class="col-md-4">
           <div class="form-group">
             <label class="form-control-label" for="new-make">Make</label>
-            <input class="form-control" id="new-make" type="text">
+            <input class="form-control" id="new-make" name="make" type="text">
           </div>
-          <div class="form-group has-success">
+          <div class="form-group">
             <label class="form-control-label" for="new-model">Model</label>
-            <input class="form-control is-valid" id="new-model" type="text">
-            <div class="form-control-feedback">This input value is valid</div>
+            <input class="form-control " id="new-model" name="model" type="text">
+            
           </div>
           <div class="form-group has-danger">
             <label class="form-control-label" for="new-year">Year</label>
-            <input class="form-control is-invalid" id="new-year" type="number">
-            <div class="form-control-feedback">This input value is invalid</div>
+            <input class="form-control" id="new-year" name="year" type="number">
+            {{!-- <div class="form-control-feedback">This input value is invalid</div> --}}
           </div>
           <div class="form-group">
-            <label class="form-control-label" for="new-description">Description</label>
-            <input class="form-control" id="new-description" type="text">
+            <label class="form-control-label " for="new-description">Description</label>
+            <input class="form-control" id="new-description" name="description" type="text" >
           </div>
         </div>
         <div class="col-md-4">
           <div class="form-group">
             <label class="form-control-label" for="new-price">Price</label>
-            <input class="form-control" id="new-price" type="number">
+            $<input class="form-control" id="new-price" name="price" type="number">
           </div>
           <div class="form-group">
             <label class="form-control-label" for="new-image">Image</label>
-            <input class="form-control" id="new-image" type="text">
+            <input class="form-control" id="new-image" name="img" type="text">
           </div>
           <div class="form-group">
             <label class="form-control-label" for="new-material">Material (optional)</label>
-            <input class="form-control" id="new-material" type="text">
+            <input class="form-control" id="new-material" name="material" type="text">
           </div>
           <input type="submit" class="btn btn-primary" value="Create" />
         </div>
       </div>
     </form>
   </div>
+  {{!--  is-invalid  --}}
 <div id="notifications">
     <div id="loadingBox" class="notification">
         <span>Loading …</span>
     </div>
     <div id="infoBox" class="notification">
         <span>Info</span>
+        <div id="infoMessage"></div>
     </div>
     <div id="errorBox" class="notification">
         <span>Error</span>
+        <div id="errorMessage"></div>
     </div>
 </div>
