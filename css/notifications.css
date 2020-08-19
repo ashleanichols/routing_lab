@@ -1,6 +1,6 @@
 #notifications {
-    float: right;
-    position: absolute;
+    /* float: center; */
+    /* position: absolute; */
     top: 0;
     right: 0;
     text-align: center;
@@ -11,7 +11,7 @@
     font-size: 1.5em;
     color: #ffffff;
     display: none;
-    text-align: right;
+
 }
 
 .notification>span {
