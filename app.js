@@ -24,23 +24,8 @@ const app = Sammy("#container",function(){
         price:22,        
        } 
      */
-    let loggedIn =false;
-    let allFurnature = [
-        // {
-        //     _id:1,
-        //     maker:"user",
-        //     img:"imgURL",
-        //     make:" the make",
-        //     model:"a chair, probablt",
-        //     year:2020,
-        //     description:"this is an item",
-        //     price:22,  
-        //     material:"(Not Avaiable)"      
-        //    }
-    ]; //array of furniture objects
-    let currentID= allFurnature.length+1;
-  
-   
+    let loggedIn = window.sessionStorage.getItem('loggedIn') !== null;
+ 
     /**
      * (POST) /furniture/create -- create route and post down
      * All Furniture (GET): /furniture/all -- Home route
@@ -60,24 +45,18 @@ const app = Sammy("#container",function(){
                 };
                 let url = "https://baas.kinvey.com/appdata/kid_B1FtXe9zD/furniture";
                 let jsonData={
-                    //mode: 'cors', // no-cors, *cors, same-origin
-                    // credentials: 'same-origin', // include, *same-origin, omit
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization':"Basic Z3Vlc3Q6Z3Vlc3Q="
-                      
                     },
-                    //redirect: 'follow', // manual, *follow, error
-                    //referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-                    // body: JSON.stringify(data) // body data type must match "Content-Type" header
-                  };
+                };
                 //Basic Z3Vlc3Q6Z3Vlc3Q=
                 fetch(url,jsonData).then((response)=>{
                     console.log(response.ok);
                     if(response.ok){
                         response.json().then((response)=>{
                             console.log(response);
-                            allFurnature = response; 
+                            let allFurnature = response; 
                             context.hasFurniture = (allFurnature.length>0 ? true:false);
                             context.furnitureItem = allFurnature;
                             context.partial('./views/home.hbs');
@@ -95,7 +74,7 @@ const app = Sammy("#container",function(){
 
             const id = context.params.id;
             let url = "https://baas.kinvey.com/appdata/kid_B1FtXe9zD/furniture/"+id;
-            console.log(url)
+            console.log(url);
             let jsonData={
                 headers: {
                     'Content-Type': 'application/json',
@@ -133,18 +112,38 @@ const app = Sammy("#container",function(){
         handleProfile(context){
             context.loggedIn  =loggedIn;
             //console.log(user)
-            const userFurniture = allFurnature.filter(furniture => furniture.maker ==  window.sessionStorage.getItem("user"));
-            //console.log(userFurniture);
-            context.hasFurniture = (userFurniture.length>0 ? true:false);
-            context.load("./views/header.hbs")
-            .then((partial) => {
-                //console.log(partial);
-                context.partials={
-                    header:partial
-                };
-                    
-                    context.myFurnature = userFurniture;
-                    context.partial('./views/profile.hbs');
+            let url = "https://baas.kinvey.com/appdata/kid_B1FtXe9zD/furniture";
+            let jsonData={
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization':'Kinvey ' + window.sessionStorage.getItem("loggedIn")
+                },
+            };
+                //Basic Z3Vlc3Q6Z3Vlc3Q=
+                fetch(url,jsonData).then((response)=>{
+                    console.log(response.ok);
+                    if(response.ok){
+                        response.json().then((response)=>{
+                            console.log(response);
+                            let allFurnature = response; 
+                            const userFurniture = allFurnature.filter(furniture => furniture._acl.creator ==  window.sessionStorage.getItem("user"));
+                            //console.log(userFurniture);
+                            context.hasFurniture = (userFurniture.length>0 ? true:false);
+                            context.load("./views/header.hbs")
+                            .then((partial) => {
+                                //console.log(partial);
+                                context.partials={
+                                    header:partial
+                                };
+                                context.myFurnature = userFurniture;
+                                context.partial('./views/profile.hbs');
+                             });
+                            });
+                        }
+                        else{
+                            console.log("ERROR! "+ response.status);
+                            console.log(response);
+                        }
                 });
         }
         handleCreate(context){
@@ -175,17 +174,46 @@ const app = Sammy("#container",function(){
     class DataController{
         deleteItem(context){
             console.log("deleted Furnature!");
-            allFurnature = allFurnature.filter(furniture => furniture._id != context.params._id);
-            console.log(allFurnature);
-            //TODO: Reoving data from the array
-            //TODO Later:delete item from db
-            this.redirect("#/furniture/mine");
+            console.log(context.params.id);
+            const id = context.params.id;
+            url =`https://baas.kinvey.com/appdata/kid_B1FtXe9zD/furniture/${id}`;
+            let jsonData={
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization':'Kinvey ' + window.sessionStorage.getItem("loggedIn")
+                },
+            };
+            fetch(url,jsonData).then(res=>{
+                console.log(res);
+                if(res.ok){
+                    res.json().then((res)=>{
+                        console.log(res);
+                        this.redirect("#/furniture/mine");
+                    });
+                }
+                else{
+                    console.log("ERROR: "+res.status);
+                }
+            });
+            
+            
+            this.redirect("#/furniture/mine")
+            console.log(res);
+            
         }
         addItem({ params }){
             console.log("Item Added!");
             //TODO: add data to the array
-            //https://image.shutterstock.com/image-photo/light-wooden-tabletop-table-on-600w-514179574.jpg 
-            //https://unsplash.com/photos/s7IIk_2dA7g 
+            //https://via.placeholder.com/150
+            /**
+              table
+              table
+              2020
+              This is a table with a discription
+              2
+              https://unsplash.com/photos/s7IIk_2dA7g
+             */ 
             const {make, model,year, description, price, img, material } = params;
             //console.log(material)
             let passed =true;
@@ -197,25 +225,43 @@ const app = Sammy("#container",function(){
             let pricsPass = price > 0;
             let imgPass = validURL(img);
             let matPass = true;
+
             if(material != ""){
                 matPass = material.length <= 20;
             }
             passed = makePass & modelPass & yearPass &
                     desPass & pricsPass & imgPass & matPass;
             if(passed){
-                let furniture = {
-                    make,
-                    model,
-                    year, 
-                    description, 
-                    price, 
-                    img, 
-                    material:(material!=""? material:"(Not Avaiable)")
-                };
                 
-                allFurnature.push(furniture);
+                let url ="https://baas.kinvey.com/appdata/kid_B1FtXe9zD/furniture";
+                let detials = {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Kinvey ' + window.sessionStorage.getItem("loggedIn")
+                        
+                    },
+                    body: JSON.stringify({
+                        make,
+                        model,
+                        year, 
+                        description, 
+                        price, 
+                        img, 
+                        material
+                    })
+                };
 
-                this.redirect("#/furniture/mine");
+                fetch(url,detials).then((response)=>{
+                    if(response.status ==201){
+                        console.log("added successfully!");
+                        this.redirect("#/furniture/mine");
+                    }
+                    else{
+                        document.getElementById("errorBox").style.display = "block";
+                    }
+                });
+                
             }   else{
                 document.getElementById("errorBox").style.display = "block";
                 if(!makePass){
@@ -270,7 +316,7 @@ const app = Sammy("#container",function(){
                 res.json()
                 .then(JSONres => {
                     console.log(JSONres);
-                    window.sessionStorage.setItem('user',JSONres.username);
+                    window.sessionStorage.setItem('user',JSONres._id);
                     window.sessionStorage.setItem("loggedIn",JSONres._kmd.authtoken);
                     loggedIn =true;
                     
@@ -302,27 +348,28 @@ const app = Sammy("#container",function(){
                 console.log(res);
                 window.sessionStorage.clear();
                 loggedIn =false;
+
                 this.redirect("#/");
                 
             });
            
-          ;
+          
         }
     }
 
     let route = new RouteController();
     let data = new DataController();
 
-    this.get("/", route.handleHome);
+    this.get("#/", route.handleHome);
 
     this.get("#/furniture/details/:id", route.handleDetails);
 
-    this.get("#/furniture/mine", route.handleProfile);//TODO
+    this.get("#/furniture/mine", route.handleProfile);
 
-    this.get("#/furniture/delete/:_id", data.deleteItem); //TODO
+    this.get("#/furniture/delete/:id", data.deleteItem); //TODO
     
     this.get("#/furniture/create", route.handleCreate); 
-    this.post("#/furniture/create", data.addItem);//TODO
+    this.post("#/furniture/create", data.addItem);
     
     this.get('#/login', route.handleLogin);
     this.post('#/login', data.login);
