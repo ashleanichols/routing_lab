@@ -170,6 +170,19 @@ const app = Sammy("#container",function(){
                 context.partial('./views/login.hbs');
             });
         }
+        handleSignup(context){
+            context.loggedIn  = loggedIn;
+            context.username = window.sessionStorage.getItem('username');
+            context.load("./views/header.hbs")
+            .then((partial) => {
+                //console.log(partial);
+                context.partials={
+                    header:partial
+                };
+                // context.myFurnature = allFurnature;
+                context.partial('./views/signup.hbs');
+            });
+        }
     }
     class DataController{
         deleteItem(context){
@@ -355,6 +368,33 @@ const app = Sammy("#container",function(){
            
           
         }
+        signup({params}){
+            const { email, password } = params;
+            let url = 'https://baas.kinvey.com/user/kid_B1FtXe9zD';
+            let jsonData={
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Basic a2lkX0IxRnRYZTl6RDo2NjVmNDg4Y2FjMjY0ZjE4OTMyMWJkYzA3NmFiMWVlNg=='
+                },
+                body: JSON.stringify({
+                    username:email,
+                    password:password
+                    
+                })
+                
+            };
+            fetch(url,jsonData).then(res=>{
+                    if(res.ok){
+                        res.json().then(res =>{
+                            this.redirect("#/login");
+                        });
+                    }else{
+                        console.log(`ERROR ${res.status}`);
+                    }
+            });
+
+        }
     }
 
     let route = new RouteController();
@@ -374,6 +414,8 @@ const app = Sammy("#container",function(){
     this.get('#/login', route.handleLogin);
     this.post('#/login', data.login);
     this.get('#/logout', data.logout);
+    this.get('#/signup', route.handleSignup);
+    this.post('#/signup', data.signup);
 
 });
 
